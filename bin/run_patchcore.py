@@ -178,6 +178,8 @@ def run(
                 scores, anomaly_labels
             )["auroc"]
 
+            print('=================================> AUROC:',auroc)
+
             # # Compute PRO score & PW Auroc for all images
             # pixel_scores = patchcore.metrics.compute_pixelwise_retrieval_metrics(
             #     segmentations, masks_gt
