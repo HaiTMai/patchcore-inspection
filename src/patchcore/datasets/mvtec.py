@@ -86,17 +86,13 @@ class MVTecDataset(torch.utils.data.Dataset):
         ]
         self.transform_mask = transforms.Compose(self.transform_mask)
 
-        self.imagesize = (3, imagesize, imagesize)
+        self.imagesize = (1, imagesize, imagesize)
 
     def __getitem__(self, idx):
-        classname, anomaly, image_path, mask_path = self.data_to_iterate[idx]
-        image = PIL.Image.open(image_path).convert("RGB")
+        classname, anomaly, image_path = self.data_to_iterate[idx]
+        image = PIL.Image.open(image_path).convert("L")
         image = self.transform_img(image)
 
-        # if self.split == DatasetSplit.TEST and mask_path is not None:
-        #     mask = PIL.Image.open(mask_path)
-        #     mask = self.transform_mask(mask)
-        # else:
         mask = torch.zeros([1, *image.size()[1:]])
 
         return {
@@ -131,26 +127,6 @@ class MVTecDataset(torch.utils.data.Dataset):
                     os.path.join(anomaly_path, x) for x in anomaly_files
                 ]
 
-                if self.train_val_split < 1.0:
-                    n_images = len(imgpaths_per_class[classname][anomaly])
-                    train_val_split_idx = int(n_images * self.train_val_split)
-                    if self.split == DatasetSplit.TRAIN:
-                        imgpaths_per_class[classname][anomaly] = imgpaths_per_class[
-                            classname
-                        ][anomaly][:train_val_split_idx]
-                    elif self.split == DatasetSplit.VAL:
-                        imgpaths_per_class[classname][anomaly] = imgpaths_per_class[
-                            classname
-                        ][anomaly][train_val_split_idx:]
-
-                if self.split == DatasetSplit.TEST and anomaly != "good":
-                    anomaly_mask_path = os.path.join(maskpath, anomaly)
-                    anomaly_mask_files = sorted(os.listdir(anomaly_mask_path))
-                    maskpaths_per_class[classname][anomaly] = [
-                        os.path.join(anomaly_mask_path, x) for x in anomaly_mask_files
-                    ]
-                else:
-                    maskpaths_per_class[classname]["good"] = None
 
         # Unrolls the data dictionary to an easy-to-iterate list.
         data_to_iterate = []
@@ -158,10 +134,6 @@ class MVTecDataset(torch.utils.data.Dataset):
             for anomaly in sorted(imgpaths_per_class[classname].keys()):
                 for i, image_path in enumerate(imgpaths_per_class[classname][anomaly]):
                     data_tuple = [classname, anomaly, image_path]
-                    if self.split == DatasetSplit.TEST and anomaly != "good":
-                        data_tuple.append(maskpaths_per_class[classname][anomaly][i])
-                    else:
-                        data_tuple.append(None)
                     data_to_iterate.append(data_tuple)
 
         return imgpaths_per_class, data_to_iterate
