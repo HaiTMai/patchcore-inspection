@@ -117,61 +117,61 @@ def run(
             scores = (scores - min_scores) / (max_scores - min_scores)
             scores = np.mean(scores, axis=0)
 
-            # segmentations = np.array(aggregator["segmentations"])
-            # min_scores = (
-            #     segmentations.reshape(len(segmentations), -1)
-            #     .min(axis=-1)
-            #     .reshape(-1, 1, 1, 1)
-            # )
-            # max_scores = (
-            #     segmentations.reshape(len(segmentations), -1)
-            #     .max(axis=-1)
-            #     .reshape(-1, 1, 1, 1)
-            # )
-            # segmentations = (segmentations - min_scores) / (max_scores - min_scores)
-            # segmentations = np.mean(segmentations, axis=0)
+            segmentations = np.array(aggregator["segmentations"])
+            min_scores = (
+                segmentations.reshape(len(segmentations), -1)
+                .min(axis=-1)
+                .reshape(-1, 1, 1, 1)
+            )
+            max_scores = (
+                segmentations.reshape(len(segmentations), -1)
+                .max(axis=-1)
+                .reshape(-1, 1, 1, 1)
+            )
+            segmentations = (segmentations - min_scores) / (max_scores - min_scores)
+            segmentations = np.mean(segmentations, axis=0)
 
             anomaly_labels = [
                 x[1] != "good" for x in dataloaders["testing"].dataset.data_to_iterate
             ]
 
-            # # (Optional) Plot example images.
-            # if save_segmentation_images:
-            #     image_paths = [
-            #         x[2] for x in dataloaders["testing"].dataset.data_to_iterate
-            #     ]
-            #     mask_paths = [
-            #         x[3] for x in dataloaders["testing"].dataset.data_to_iterate
-            #     ]
+            # (Optional) Plot example images.
+            if save_segmentation_images:
+                image_paths = [
+                    x[2] for x in dataloaders["testing"].dataset.data_to_iterate
+                ]
+                mask_paths = [
+                    x[3] for x in dataloaders["testing"].dataset.data_to_iterate
+                ]
 
-            #     def image_transform(image):
-            #         in_std = np.array(
-            #             dataloaders["testing"].dataset.transform_std
-            #         ).reshape(-1, 1, 1)
-            #         in_mean = np.array(
-            #             dataloaders["testing"].dataset.transform_mean
-            #         ).reshape(-1, 1, 1)
-            #         image = dataloaders["testing"].dataset.transform_img(image)
-            #         return np.clip(
-            #             (image.numpy() * in_std + in_mean) * 255, 0, 255
-            #         ).astype(np.uint8)
+                def image_transform(image):
+                    in_std = np.array(
+                        dataloaders["testing"].dataset.transform_std
+                    ).reshape(-1, 1, 1)
+                    in_mean = np.array(
+                        dataloaders["testing"].dataset.transform_mean
+                    ).reshape(-1, 1, 1)
+                    image = dataloaders["testing"].dataset.transform_img(image)
+                    return np.clip(
+                        (image.numpy() * in_std + in_mean) * 255, 0, 255
+                    ).astype(np.uint8)
 
-            #     def mask_transform(mask):
-            #         return dataloaders["testing"].dataset.transform_mask(mask).numpy()
+                def mask_transform(mask):
+                    return dataloaders["testing"].dataset.transform_mask(mask).numpy()
 
-            #     image_save_path = os.path.join(
-            #         run_save_path, "segmentation_images", dataset_name
-            #     )
-            #     os.makedirs(image_save_path, exist_ok=True)
-            #     patchcore.utils.plot_segmentation_images(
-            #         image_save_path,
-            #         image_paths,
-            #         segmentations,
-            #         scores,
-            #         mask_paths,
-            #         image_transform=image_transform,
-            #         mask_transform=mask_transform,
-            #     )
+                image_save_path = os.path.join(
+                    run_save_path, "segmentation_images", dataset_name
+                )
+                os.makedirs(image_save_path, exist_ok=True)
+                patchcore.utils.plot_segmentation_images(
+                    image_save_path,
+                    image_paths,
+                    segmentations,
+                    scores,
+                    mask_paths,
+                    image_transform=image_transform,
+                    mask_transform=mask_transform,
+                )
 
             LOGGER.info("Computing evaluation metrics.")
             auroc = patchcore.metrics.compute_imagewise_retrieval_metrics(
