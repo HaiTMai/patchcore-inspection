@@ -90,7 +90,7 @@ class MVTecDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         classname, anomaly, image_path = self.data_to_iterate[idx]
-        image = PIL.Image.open(image_path).convert("L")
+        image = PIL.Image.open(image_path).convert("RGB")
         image = self.transform_img(image)
 
         mask = torch.zeros([1, *image.size()[1:]])
