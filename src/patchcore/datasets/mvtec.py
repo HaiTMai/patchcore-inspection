@@ -165,7 +165,7 @@ class MVTecDataset(torch.utils.data.Dataset):
         self.classname = classname
         self.train_val_split = train_val_split
 
-        self.imagesize = (3, 1024, 128)
+        self.imagesize = (3, 256, 128)
 
 
     def __getitem__(self, idx):
@@ -175,15 +175,18 @@ class MVTecDataset(torch.utils.data.Dataset):
         
         x = x.mean(axis=0)
         image = make_features(x)
-
+        image=torch.transpose(image, 0,1)
+    
         # To make it fit for all backbones that have RGB inputs
         image_3 = torch.zeros(3, image.shape[0], image.shape[1])
         image_3[0,:,:]= image
         image_3[1,:,:]= image
         image_3[2,:,:]= image
 
-        image = image_3
 
+        image = image_3
+        image = F.interpolate(image,size=(256))
+        image = torch.transpose(image, 1,2)
 
         mask = torch.zeros([1, *image.size()[1:]])
 
