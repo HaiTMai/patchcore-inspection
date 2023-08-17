@@ -165,8 +165,9 @@ class MVTecDataset(torch.utils.data.Dataset):
         self.classname = classname
         self.train_val_split = train_val_split
 
-        self.imagesize = (3, 256, 128)
-
+        self.resize = resize*2
+        
+        self.imagesize = (3, self.resize, 128)
 
     def __getitem__(self, idx):
         anomaly = self.labels[idx]
@@ -183,9 +184,8 @@ class MVTecDataset(torch.utils.data.Dataset):
         image_3[1,:,:]= image
         image_3[2,:,:]= image
 
-
         image = image_3
-        image = F.interpolate(image,size=(256))
+        image = F.interpolate(image,size=(self.resize))
         image = torch.transpose(image, 1,2)
 
         mask = torch.zeros([1, *image.size()[1:]])
