@@ -62,7 +62,7 @@ def make_features(waveform, sr=16000, mel_bins=128, target_length=1024):
     fbank = (fbank - (-4.2677393)) / (4.5689974 * 2)
     return fbank
 
-def audiodir(machine,id,Data = 'normal', base_dir = 'C:/01.HOME/github/AADCL-main/data/'):#/content/drive/MyDrive/SADCL/Dataset/'
+def audiodir(machine,id,Data = 'normal', base_dir = '/content/data/MIMII/'):#/content/drive/MyDrive/SADCL/Dataset/'
   '''
   Find the audio directory
   Inputs:
