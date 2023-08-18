@@ -6,6 +6,7 @@ import torch
 import torchaudio
 from torchvision import transforms
 from torch.utils.data import ConcatDataset
+import torch.nn.functional as F
 
 _CLASSNAMES = [
     "bottle",
