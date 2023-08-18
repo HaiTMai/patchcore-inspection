@@ -163,7 +163,7 @@ class PatchCore(torch.nn.Module):
 
         features = []
         with tqdm.tqdm(
-            input_data, desc="Computing support features...", position=1, leave=False
+            input_data, desc="Computing support features...", position=0, leave=True
         ) as data_iterator:
             for image in data_iterator:
                 if isinstance(image, dict):
@@ -188,7 +188,7 @@ class PatchCore(torch.nn.Module):
         masks = []
         labels_gt = []
         masks_gt = []
-        with tqdm.tqdm(dataloader, desc="Inferring...", leave=False) as data_iterator:
+        with tqdm.tqdm(dataloader, desc="Inferring...", position=0, leave=True) as data_iterator:
             for image in data_iterator:
                 if isinstance(image, dict):
                     labels_gt.extend(image["is_anomaly"].numpy().tolist())
