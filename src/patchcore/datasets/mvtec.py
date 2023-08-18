@@ -166,7 +166,7 @@ class MVTecDataset(torch.utils.data.Dataset):
         self.classname = classname
         self.train_val_split = train_val_split
 
-        self.resize = resize*2
+        self.resize = resize
         
         self.imagesize = (3, self.resize, 128)
 
