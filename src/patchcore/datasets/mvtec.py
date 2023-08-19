@@ -124,6 +124,12 @@ def train_test(subdataset):
   train_dataset.imagesize=imagesize
   test_dataset.imagesize=imagesize
   test_dataset.labels = [0]*len(test_normal_dataset)+[1]*len(dataset_abnormal)
+  test_dataset.data_dir = ['']*len(test_dataset.labels)
+  tmp_dir =[ dir[idx] for idx in test_normal_dataset.indices]
+
+  test_dataset.data_dir[:len(test_normal_dataset)] = tmp_dir
+  test_dataset.data_dir[len(test_normal_dataset):len(test_dataset.data_dir)] = dataset_abnormal.data_dir
+  
 
   # Train = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True,num_workers=4,drop_last=True)
   # Test = torch.utils.data.DataLoader(test_dataset, batch_size=300, shuffle=True,num_workers=4)
