@@ -57,7 +57,7 @@ def GetImage(path,resize=256):
 
   return image
     
-def PlotImage(image,segm, savename='XAI_00',overlap=True):
+def PlotImage(image,segm, savename='XAI_00',overlap=False):
   if torch.is_tensor(image):
     image = image.cpu().detach().numpy()
   image *= (255.0/image.max())
