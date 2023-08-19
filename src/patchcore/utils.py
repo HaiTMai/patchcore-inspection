@@ -58,6 +58,8 @@ def GetImage(path,resize=256):
   return image
 
 def SaveImage(image,name='fbank'):
+  if torch.is_tensor(image):
+    image = image.cpu().detach().numpy()
   image *= (255.0/image.max())
   if not os.path.exists('/content/outputs'):
       os.mkdir('/content/outputs')
