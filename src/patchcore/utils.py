@@ -69,10 +69,15 @@ def PlotImage(image,segm, savename='XAI_00',overlap=False):
     axes.imshow(image.T)
     axes.imshow(segm.T, alpha=0.45)
   else:
-    f, axes = plt.subplots(1, 2)
+    f, axes = plt.subplots(2, 1)
     axes[0].imshow(image.T)
     axes[1].imshow(segm.T)
-  f.set_size_inches(3 * 2, 3)
+  
+  if overlap:
+    f.set_size_inches(3 * 2, 3)
+  else:
+    f.set_size_inches(3 * 2, 3*2)
+    
   f.tight_layout()
   f.savefig("/content/outputs/{}.jpeg".format(savename))
   plt.close()
