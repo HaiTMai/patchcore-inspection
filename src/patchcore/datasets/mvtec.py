@@ -7,6 +7,7 @@ import torchaudio
 from torchvision import transforms
 from torch.utils.data import ConcatDataset
 import torch.nn.functional as F
+from patchcore.utils import SaveImage
 
 _CLASSNAMES = [
     "bottle",
@@ -188,6 +189,12 @@ class MVTecDataset(torch.utils.data.Dataset):
         image = image_3
         image = F.interpolate(image,size=(self.resize))
         image = torch.transpose(image, 1,2)
+
+        if idx==0:
+          print_image = image.cpu().detach().numpy()[0,:,:]
+          print_image *= (255.0/print_image.max())
+          SaveImage(print_image)
+          print('===============>Save Image at idx =0')
 
         mask = torch.zeros([1, *image.size()[1:]])
 
