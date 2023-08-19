@@ -7,7 +7,8 @@ import torchaudio
 from torchvision import transforms
 from torch.utils.data import ConcatDataset
 import torch.nn.functional as F
-from patchcore.utils import SaveImage
+from patchcore.utils import GetImage
+from patchcore.utils import make_features
 
 _CLASSNAMES = [
     "bottle",
@@ -39,30 +40,7 @@ class DatasetSplit(Enum):
     TEST = "test"
 
 
-def make_features(waveform, sr=16000, mel_bins=128, target_length=1024):
 
-    waveform = waveform - waveform.mean()
-    waveform = waveform.unsqueeze(dim=0)    
-
-    assert sr == 16000, 'input audio sampling rate must be 16kHz'
-    
-    fbank = torchaudio.compliance.kaldi.fbank(
-        waveform, htk_compat=True, sample_frequency=sr, use_energy=False,
-        window_type='hanning', num_mel_bins=mel_bins, dither=0.0,
-        frame_shift=10)
-
-    n_frames = fbank.shape[0]
-
-    p = target_length - n_frames
-    if p > 0:
-        m = torch.nn.ZeroPad2d((0, 0, 0, p))
-        fbank = m(fbank)
-    elif p < 0:
-        fbank = fbank[0:target_length, :]
-
-    
-    fbank = (fbank - (-4.2677393)) / (4.5689974 * 2)
-    return fbank
 
 def audiodir(machine,id,Data = 'normal', base_dir = '/content/data/MIMII/'):#/content/drive/MyDrive/SADCL/Dataset/'
   '''
@@ -115,11 +93,9 @@ def train_test(subdataset):
 
   train_dataset, test_normal_dataset = torch.utils.data.random_split(dataset_normal, [int(len(dataset_normal)*train_size), len(dataset_normal)- int(len(dataset_normal)*train_size)])
 
-  
+
   test_dataset = ConcatDataset([test_normal_dataset, dataset_abnormal])
   
-
-
   #Set again fro imagesize due to after split it lost the properties
   train_dataset.imagesize=imagesize
   test_dataset.imagesize=imagesize
@@ -129,6 +105,8 @@ def train_test(subdataset):
 
   test_dataset.data_dir[:len(test_normal_dataset)] = tmp_dir
   test_dataset.data_dir[len(test_normal_dataset):len(test_dataset.data_dir)] = dataset_abnormal.data_dir
+  test_dataset.dstype='testing'
+  train_dataset.dstype='training'
   
 
   # Train = torch.utils.data.DataLoader(train_dataset, batch_size=128, shuffle=True,num_workers=4,drop_last=True)
@@ -180,27 +158,13 @@ class MVTecDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         anomaly = self.labels[idx]
         path = self.data_dir[idx]
-        x,sr = torchaudio.load(path)
-        
-        x = x.mean(axis=0)
-        image = make_features(x)
-        image=torch.transpose(image, 0,1)
-    
-        # To make it fit for all backbones that have RGB inputs
-        image_3 = torch.zeros(3, image.shape[0], image.shape[1])
-        image_3[0,:,:]= image
-        image_3[1,:,:]= image
-        image_3[2,:,:]= image
+        image = GetImage(path)
 
-        image = image_3
-        image = F.interpolate(image,size=(self.resize))
-        image = torch.transpose(image, 1,2)
-
-        if idx==0:
-          print_image = image.cpu().detach().numpy()[0,:,:]
-          print_image *= (255.0/print_image.max())
-          SaveImage(print_image)
-          print('===============>Save Image at idx =0')
+        # if idx==0:
+        #   print_image = image.cpu().detach().numpy()[0,:,:]
+        #   print_image *= (255.0/print_image.max())
+        #   SaveImage(print_image,'fbank_anomaly_{}'.format(anomaly))
+        #   print('===============>Save Image at idx =0, path={}'.format(path))
 
         mask = torch.zeros([1, *image.size()[1:]])
 
@@ -211,10 +175,8 @@ class MVTecDataset(torch.utils.data.Dataset):
             "anomaly": anomaly,
             "is_anomaly": int(anomaly != "good"),
             # "image_name": "/".join(image_path.split("/")[-4:]),
-            # "image_path": image_path,
+            "image_path": path,
         }
 
     def __len__(self):
         return len(self.labels)
-
-
