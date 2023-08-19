@@ -56,6 +56,26 @@ def GetImage(path,resize=256):
   image = torch.transpose(image, 1,2)
 
   return image
+    
+def PlotImage(image,segm, savename='XAI_00',overlap=True):
+  if torch.is_tensor(image):
+    image = image.cpu().detach().numpy()
+  image *= (255.0/image.max())
+  if not os.path.exists('/content/outputs'):
+      os.mkdir('/content/outputs')
+  
+  if overlap:
+    f, axes = plt.subplots(1, 1)
+    axes.imshow(image.T)
+    axes.imshow(segm.T, alpha=0.45)
+  else:
+    f, axes = plt.subplots(1, 2)
+    axes[0].imshow(image.T)
+    axes[1].imshow(segm.T)
+  f.set_size_inches(3 * 2, 3)
+  f.tight_layout()
+  f.savefig("/content/outputs/{}.jpeg".format(savename))
+  plt.close()
 
 def SaveImage(image,name='fbank'):
   if torch.is_tensor(image):
