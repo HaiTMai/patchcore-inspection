@@ -12,6 +12,14 @@ import tqdm
 LOGGER = logging.getLogger(__name__)
 
 
+def SaveImage(image,name='fbank'):
+  if not os.path.exists('/content/outputs'):
+      os.mkdir('/content/outputs')
+  im = PIL.Image.fromarray(image)
+  if im.mode != 'RGB':
+    im = im.convert('RGB')
+  im.save("/content/outputs/{}.jpeg".format(name))
+
 def plot_segmentation_images(
     savefolder,
     image_paths,
