@@ -7,10 +7,55 @@ import matplotlib.pyplot as plt
 import numpy as np
 import PIL
 import torch
+import torchaudio
 import tqdm
+import torch.nn.functional as F
 
 LOGGER = logging.getLogger(__name__)
 
+
+def make_features(waveform, sr=16000, mel_bins=128, target_length=1024):
+
+    waveform = waveform - waveform.mean()
+    waveform = waveform.unsqueeze(dim=0)    
+
+    assert sr == 16000, 'input audio sampling rate must be 16kHz'
+    
+    fbank = torchaudio.compliance.kaldi.fbank(
+        waveform, htk_compat=True, sample_frequency=sr, use_energy=False,
+        window_type='hanning', num_mel_bins=mel_bins, dither=0.0,
+        frame_shift=10)
+
+    n_frames = fbank.shape[0]
+
+    p = target_length - n_frames
+    if p > 0:
+        m = torch.nn.ZeroPad2d((0, 0, 0, p))
+        fbank = m(fbank)
+    elif p < 0:
+        fbank = fbank[0:target_length, :]
+
+    
+    fbank = (fbank - (-4.2677393)) / (4.5689974 * 2)
+    return fbank
+
+def GetImage(path,resize=256):
+  x,sr = torchaudio.load(path)
+  x = x.mean(axis=0)
+  image = make_features(x)
+  image=torch.transpose(image, 0,1)
+
+  # To make it fit for all backbones that have RGB inputs
+  image_3 = torch.zeros(3, image.shape[0], image.shape[1])
+  image_3[0,:,:]= image
+  image_3[1,:,:]= image
+  image_3[2,:,:]= image
+
+  image = image_3
+  image = F.interpolate(image,size=(resize))
+  image = torch.transpose(image, 1,2)
+
+  return image
 
 def SaveImage(image,name='fbank'):
   image *= (255.0/image.max())
@@ -20,6 +65,7 @@ def SaveImage(image,name='fbank'):
   if im.mode != 'RGB':
     im = im.convert('RGB')
   im.save("/content/outputs/{}.jpeg".format(name))
+
 
 def plot_segmentation_images(
     savefolder,
