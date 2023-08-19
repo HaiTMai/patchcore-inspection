@@ -125,21 +125,27 @@ def run(
             scores = (scores - min_scores) / (max_scores - min_scores)
             scores = np.mean(scores, axis=0)
 
-            # segmentations = np.array(aggregator["segmentations"])
-            # min_scores = (
-            #     segmentations.reshape(len(segmentations), -1)
-            #     .min(axis=-1)
-            #     .reshape(-1, 1, 1, 1)
-            # )
-            # max_scores = (
-            #     segmentations.reshape(len(segmentations), -1)
-            #     .max(axis=-1)
-            #     .reshape(-1, 1, 1, 1)
-            # )
-            # segmentations = (segmentations - min_scores) / (max_scores - min_scores)
-            # segmentations = np.mean(segmentations, axis=0)
+            segmentations = np.array(aggregator["segmentations"])
+            min_scores = (
+                segmentations.reshape(len(segmentations), -1)
+                .min(axis=-1)
+                .reshape(-1, 1, 1, 1)
+            )
+            max_scores = (
+                segmentations.reshape(len(segmentations), -1)
+                .max(axis=-1)
+                .reshape(-1, 1, 1, 1)
+            )
+            segmentations = (segmentations - min_scores) / (max_scores - min_scores)
+            segmentations = np.mean(segmentations, axis=0)
+
+            print('Checking segmentations:',segmentations.shape)
+            print('scores:',scores.shape)
 
             anomaly_labels = dataloaders["testing"].dataset.labels
+            
+            patchcore.utils.SaveImage(segmentations[0],'segmenation_0 with labels:{}'.format(anomaly_labels[0]))
+
             
 
             # # (Optional) Plot example images.
