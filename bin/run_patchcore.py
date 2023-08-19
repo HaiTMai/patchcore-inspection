@@ -146,7 +146,7 @@ def run(
             
             for p_idx in range(50):
               image = patchcore.utils.GetImage(dataloaders["testing"].dataset.data_dir[p_idx])
-              patchcore.utils.PlotImage(image[0,:,:],segmentations[p_idx],'label_{}_ID_{:03d}_Score_{}'\
+              patchcore.utils.PlotImage(image[0,:,:],segmentations[p_idx],'label_{}_ID_{:03d}_Score_{:.4f}'\
               .format(anomaly_labels[p_idx],p_idx,scores[p_idx]))
 
               # patchcore.utils.SaveImage(image[0,:,:],'label_{}_ID_{:03d}_fbank'.format(anomaly_labels[p_idx],p_idx))
@@ -154,13 +154,11 @@ def run(
 
               ap_idx = mylen-p_idx
               image = patchcore.utils.GetImage(dataloaders["testing"].dataset.data_dir[ap_idx])
-              patchcore.utils.PlotImage(image[0,:,:],segmentations[ap_idx],'label_{}_ID_{:03d}_Score_{}'\
+              patchcore.utils.PlotImage(image[0,:,:],segmentations[ap_idx],'label_{}_ID_{:03d}_Score_{:.4f}'\
               .format(anomaly_labels[ap_idx],ap_idx,scores[ap_idx]))
               # patchcore.utils.SaveImage(image[0,:,:],'label_{}_ID_{:03d}_fbank'.format(anomaly_labels[ap_idx],ap_idx))
               # patchcore.utils.SaveImage(segmentations[ap_idx],'label_{}_ID_{:03d}_segm'.format(anomaly_labels[ap_idx],ap_idx))
-                    
-              
-            exit()
+            
 
             # # (Optional) Plot example images.
             # if save_segmentation_images:
