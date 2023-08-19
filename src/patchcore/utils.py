@@ -13,6 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def SaveImage(image,name='fbank'):
+  image *= (255.0/image.max())
   if not os.path.exists('/content/outputs'):
       os.mkdir('/content/outputs')
   im = PIL.Image.fromarray(image)
