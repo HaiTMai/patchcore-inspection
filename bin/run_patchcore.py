@@ -143,6 +143,7 @@ def run(
             print('scores:',scores.shape)
 
             anomaly_labels = dataloaders["testing"].dataset.labels
+            mylen = len(anomaly_labels)-1
             
             for p_idx in range(50):
               image = patchcore.utils.GetImage(dataloaders["testing"].dataset.data_dir[p_idx])
